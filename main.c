@@ -57,6 +57,14 @@ void	load_sections_64(struct section_64 *sects, uint32_t nsects)
 	}
 }
 
+void	print_version(uint32_t version)
+{
+	uint16_t x = version >> 16;
+	uint8_t y = (version >> 8) & 0xFFFF;
+	uint8_t z = version & 0xFFFF;
+	printf("%" PRId16 ".%" PRId8 ".%" PRId8 "\n", x, y, z);
+}
+
 void	*read_load(int fd)
 {
 	struct load_command	header;
@@ -119,6 +127,18 @@ void	*read_load(int fd)
 		printf("nextrel = %" PRId32 "\n", cmd->nextrel);
 		printf("locreloff = %" PRId32 "\n", cmd->locreloff);
 		printf("nlocrel = %" PRId32 "\n", cmd->nlocrel);
+	}
+	else if (header.cmd == LC_VERSION_MIN_MACOSX
+			|| header.cmd == LC_VERSION_MIN_IPHONEOS
+			|| header.cmd == LC_VERSION_MIN_WATCHOS
+			|| header.cmd == LC_VERSION_MIN_TVOS)
+	{
+		struct version_min_command *cmd = load;
+		printf("version_min_command read:\n");
+		printf("cmd = %" PRId32 "\n", cmd->cmd);
+		printf("cmdsize = %" PRId32 "\n", cmd->cmdsize);
+		printf("version = "); print_version(cmd->version);
+		printf("sdk = "); print_version(cmd->sdk);
 	}
 	else
 		printf("unknown\n");
