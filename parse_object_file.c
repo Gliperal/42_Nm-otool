@@ -27,7 +27,12 @@ struct mach_header_64	*read_header(int fd)
 	printf("magic = %" PRId32 "\n", header->magic);
 	printf("cputype = %" PRId32 "\n", header->cputype);
 	printf("cpusubtype = %" PRId32 "\n", header->cpusubtype);
-	printf("filetype = %" PRId32 " (MH_OBJECT = %" PRId32 ")\n", header->filetype, MH_OBJECT);
+	printf("filetype = %" PRId32 "\n", header->filetype);
+		printf("\tMH_OBJECT = %" PRId32 "\n", MH_OBJECT);
+		printf("\tMH_EXECUTE = %" PRId32 "\n", MH_EXECUTE);
+		// FVMLIB CORE PRELOAD
+		printf("\tMH_DYLIB = %" PRId32 "\n", MH_DYLIB);
+		// DYLINKER BUNDLE DYLIB_STUB
 	printf("ncmds = %" PRId32 "\n", header->ncmds);
 	printf("sizeofcmds = %" PRId32 "\n", header->sizeofcmds);
 	printf("flags = %" PRId32 "\n", header->flags);
@@ -145,9 +150,15 @@ void	*read_load(int fd)
 	return (load);
 }
 
-int main()
+int main(int argc, const char **argv)
 {
-	int fd = open("ft_putstr.o", O_RDONLY);
+	int fd;
+//	fd = open("test_files/ft_putstr.o", O_RDONLY);
+//	fd = open("test_files/filler", O_RDONLY);
+	if (argc < 2)
+		fd = open("test_files/libft_malloc.so", O_RDONLY);
+	else
+		fd = open(argv[1], O_RDONLY);
 	struct mach_header_64 *header = read_header(fd);
 	struct load_command *loads[32];
 	for (int i = 0; i < header->ncmds; i++)
