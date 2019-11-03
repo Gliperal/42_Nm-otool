@@ -6,7 +6,7 @@
 /*   By: nwhitlow <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/11/03 11:48:40 by nwhitlow          #+#    #+#             */
-/*   Updated: 2019/11/03 12:28:50 by nwhitlow         ###   ########.fr       */
+/*   Updated: 2019/11/03 12:35:59 by nwhitlow         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 
 #include "file.h"
 
-t_file	*file_new()
+static t_file	*file_new(void)
 {
 	t_file *file;
 
@@ -34,11 +34,11 @@ t_file	*file_new()
 	return (file);
 }
 
-int		file_read(t_file *file, int fd)
+static int		file_read(t_file *file, int fd)
 {
-	char buffer[1024];
-	size_t bytes_read;
-	char *new_contents;
+	char	buffer[1024];
+	size_t	bytes_read;
+	char	*new_contents;
 
 	while ((bytes_read = read(fd, buffer, 1024)) > 0)
 	{
@@ -61,16 +61,16 @@ int		file_read(t_file *file, int fd)
 	return (-1);
 }
 
-void	ft_close(t_file *file)
+void			ft_close(t_file *file)
 {
 	free(file->contents);
 	free(file);
 }
 
-t_file	*ft_open(const char *filename)
+t_file			*ft_open(const char *filename)
 {
-	int fd;
-	t_file *file;
+	int		fd;
+	t_file	*file;
 
 	fd = open(filename, O_RDONLY);
 	if (fd == -1)
