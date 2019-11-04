@@ -6,7 +6,7 @@
 /*   By: nwhitlow <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/11/03 12:24:16 by nwhitlow          #+#    #+#             */
-/*   Updated: 2019/11/03 15:44:13 by nwhitlow         ###   ########.fr       */
+/*   Updated: 2019/11/04 14:28:47 by nwhitlow         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,13 +19,14 @@
 
 #include "libft/libft.h"
 
-void	print_hex_uint32_t(uint32_t n)
+// OTOOL -T
+
+void	print_hex_uint32_t(uint64_t n)
 {
-	// TODO
-	ft_printf("00000000%.8x\t", n);
+	ft_printf("%.8x%.8x", n >> 32, n);
 }
 
-void	hexdump(void *data, uint32_t size, uint32_t addr)
+void	hexdump(void *data, uint32_t size, uint64_t addr)
 {
 	unsigned char *d;
 	int i;
@@ -34,6 +35,7 @@ void	hexdump(void *data, uint32_t size, uint32_t addr)
 	while (1)
 	{
 		print_hex_uint32_t(addr);
+		ft_printf("\t");
 		i = 0;
 		while (i < size && i < 16)
 		{
@@ -55,8 +57,10 @@ void	do_sections_64(t_file *file, size_t offset, uint32_t nsects)
 	ft_printf("%" PRId32 " sects\n", nsects);
 	for (uint32_t i = 0; i < nsects; i++)
 	{
+		// TODO check end of file
 		struct section_64 *s = sects + i;
 //		ft_printf("align = %" PRId32 "\n", s->align);
+		ft_printf("section : sectname = %.8s\n", s->sectname);
 		if ((ft_strcmp(s->sectname, "__text") == 0) && (ft_strcmp(s->segname, "__TEXT") == 0))
 		{
 			ft_printf("Contents of (__TEXT,__text) section\n");
@@ -78,6 +82,76 @@ void	do_segment_64(t_file *file, size_t offset)
 	do_sections_64(file, offset + sizeof(struct segment_command_64), cmd->nsects);
 }
 
+// NM
+
+#include <mach-o/nlist.h>
+
+char	sym_type(struct nlist_64 *sym)
+{
+	uint8_t ntype;
+	char type;
+
+	ntype = sym->n_type;
+	if (ntype & N_STAB)
+		return ('-');
+	else if ((ntype & N_TYPE) == N_UNDF)
+		type = 'u';
+	else if ((ntype & N_TYPE) == N_ABS)
+		type = 'a';
+	else if ((ntype & N_TYPE) == N_SECT)
+	{
+		uint8_t sect = sym->n_sect;
+		// depending on section type
+		// T = __text
+		// D = __data
+		// B = __bss
+		// C = ?common
+		// S = other
+		type = 't';
+	}
+	else if ((ntype & N_TYPE) == N_PBUD)
+		type = '?';
+	else if ((ntype & N_TYPE) == N_INDR)
+		type = 'i';
+	if (ntype & N_EXT)
+		type = ft_toupper(type);
+	return (type);
+}
+
+void	do_symtab(t_file *file, size_t offset)
+{
+	struct symtab_command *cmd;
+
+	if (file->size < offset + sizeof(struct symtab_command))
+	{
+		ft_putstr("Unexpected end of file.\n");
+		return ; // return something to stop the parsing
+	}
+	cmd = (void *)file->contents + offset;
+
+	// TODO check end of file
+	struct nlist_64 *syms = (void *)file->contents + cmd->symoff;
+	char *strtab = file->contents + cmd->stroff;
+	for (uint32_t i = 0; i < cmd->nsyms; i++)
+	{
+		// TODO check end of file
+		if ((syms[i].n_type & N_TYPE) == N_SECT)
+		{
+			print_hex_uint32_t(syms[i].n_value);
+			// TODO check end of file
+		}
+		else
+		{
+			ft_printf("                ");
+		}
+		ft_printf(" %c ", sym_type(syms + i));
+		ft_printf("%s\n", strtab + syms[i].n_un.n_strx);
+//		ft_printf("n_desc = %" PRId16 "\n", syms[i].n_desc);
+	}
+}
+
+// COMMON
+
 void	do_cmds(t_file *file, size_t offset, uint32_t ncmds)
 {
 	struct load_command *header;
@@ -90,15 +164,10 @@ void	do_cmds(t_file *file, size_t offset, uint32_t ncmds)
 			return ; // return something to stop the parsing
 		}
 		header = (void *)file->contents + offset;
-		ft_printf("cmd %d\n", header->cmd);
 		if (header->cmd == LC_SEGMENT_64)
 			do_segment_64(file, offset);
 		else if (header->cmd == LC_SYMTAB)
-			ft_printf("LC_SYMTAB\n");
-		else if (header->cmd == LC_DYSYMTAB)
-			ft_printf("LC_DYSTMTAB\n");
-		else if (header->cmd == LC_VERSION_MIN_MACOSX)
-			ft_printf("LC_VERSION_MIN_MACOSX\n");
+			do_symtab(file, offset);
 		offset += header->cmdsize;
 	}
 }
