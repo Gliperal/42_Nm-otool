@@ -6,16 +6,14 @@
 /*   By: nwhitlow <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/11/03 12:24:16 by nwhitlow          #+#    #+#             */
-/*   Updated: 2019/11/04 14:28:47 by nwhitlow         ###   ########.fr       */
+/*   Updated: 2019/11/04 16:36:37 by nwhitlow         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 // TODO REMOVE
 #include <inttypes.h>
 
-#include <mach-o/loader.h>
-
-#include "file.h"
+#include "machfile.h"
 
 #include "libft/libft.h"
 
@@ -51,42 +49,23 @@ void	hexdump(void *data, uint32_t size, uint64_t addr)
 	}
 }
 
-void	do_sections_64(t_file *file, size_t offset, uint32_t nsects)
+static void	otool(t_machfile *machfile)
 {
-	struct section_64 *sects = (void *)file->contents + offset;
-	ft_printf("%" PRId32 " sects\n", nsects);
-	for (uint32_t i = 0; i < nsects; i++)
+	for (uint32_t i = 0; i < machfile->nsects; i++)
 	{
-		// TODO check end of file
-		struct section_64 *s = sects + i;
+		struct section_64 *s = machfile->sects[i];
 //		ft_printf("align = %" PRId32 "\n", s->align);
-		ft_printf("section : sectname = %.8s\n", s->sectname);
 		if ((ft_strcmp(s->sectname, "__text") == 0) && (ft_strcmp(s->segname, "__TEXT") == 0))
 		{
 			ft_printf("Contents of (__TEXT,__text) section\n");
-			hexdump(file->contents + s->offset, s->size, s->addr);
+			hexdump(machfile->file->contents + s->offset, s->size, s->addr);
 		}
 	}
 }
 
-void	do_segment_64(t_file *file, size_t offset)
-{
-	struct segment_command_64 *cmd;
-
-	if (file->size < offset + sizeof(struct segment_command_64))
-	{
-		ft_putstr("Unexpected end of file.\n");
-		return ; // return something to stop the parsing
-	}
-	cmd = (void *)file->contents + offset;
-	do_sections_64(file, offset + sizeof(struct segment_command_64), cmd->nsects);
-}
-
 // NM
 
-#include <mach-o/nlist.h>
-
-char	sym_type(struct nlist_64 *sym)
+static char	sym_type(struct nlist_64 *sym, t_machfile *machfile)
 {
 	uint8_t ntype;
 	char type;
@@ -100,14 +79,23 @@ char	sym_type(struct nlist_64 *sym)
 		type = 'a';
 	else if ((ntype & N_TYPE) == N_SECT)
 	{
-		uint8_t sect = sym->n_sect;
-		// depending on section type
-		// T = __text
-		// D = __data
-		// B = __bss
-		// C = ?common
-		// S = other
-		type = 't';
+		uint8_t i = sym->n_sect;
+		if (i > machfile->nsects)
+		{
+			// TODO
+			return 0;
+		}
+		char *sectname = machfile->sects[i - 1]->sectname;
+		if (ft_strcmp(sectname, "__text") == 0)
+			type = 't';
+		else if (ft_strcmp(sectname, "__data") == 0)
+			type = 'd';
+		else if (ft_strcmp(sectname, "__bss") == 0)
+			type = 'b';
+		else if (ft_strcmp(sectname, "__common") == 0) // TODO double check sectname
+			type = 'c';
+		else
+			type = 's';
 	}
 	else if ((ntype & N_TYPE) == N_PBUD)
 		type = '?';
@@ -118,92 +106,32 @@ char	sym_type(struct nlist_64 *sym)
 	return (type);
 }
 
-void	do_symtab(t_file *file, size_t offset)
+static void	nm(t_machfile *machfile)
 {
-	struct symtab_command *cmd;
-
-	if (file->size < offset + sizeof(struct symtab_command))
+	for (uint32_t i = 0; i < machfile->nsyms; i++)
 	{
-		ft_putstr("Unexpected end of file.\n");
-		return ; // return something to stop the parsing
-	}
-	cmd = (void *)file->contents + offset;
-
-	// TODO check end of file
-	struct nlist_64 *syms = (void *)file->contents + cmd->symoff;
-	char *strtab = file->contents + cmd->stroff;
-	for (uint32_t i = 0; i < cmd->nsyms; i++)
-	{
-		// TODO check end of file
-		if ((syms[i].n_type & N_TYPE) == N_SECT)
-		{
-			print_hex_uint32_t(syms[i].n_value);
-			// TODO check end of file
-		}
+		struct nlist_64 *sym;
+		sym = machfile->symtab + i;
+		if ((sym->n_type & N_TYPE) == N_SECT)
+			print_hex_uint32_t(sym->n_value);
 		else
-		{
 			ft_printf("                ");
-		}
-		ft_printf(" %c ", sym_type(syms + i));
-		ft_printf("%s\n", strtab + syms[i].n_un.n_strx);
-//		ft_printf("n_desc = %" PRId16 "\n", syms[i].n_desc);
+		ft_printf(" %c ", sym_type(sym, machfile));
+		// TODO check end of file
+		ft_printf("%s\n", machfile->strtab + sym->n_un.n_strx);
 	}
-}
-
-// COMMON
-
-void	do_cmds(t_file *file, size_t offset, uint32_t ncmds)
-{
-	struct load_command *header;
-
-	for (int i = 0; i < ncmds; i++)
-	{
-		if (file->size < offset + sizeof(struct load_command))
-		{
-			ft_putstr("Unexpected end of file.\n");
-			return ; // return something to stop the parsing
-		}
-		header = (void *)file->contents + offset;
-		if (header->cmd == LC_SEGMENT_64)
-			do_segment_64(file, offset);
-		else if (header->cmd == LC_SYMTAB)
-			do_symtab(file, offset);
-		offset += header->cmdsize;
-	}
-}
-
-void	do_things(t_file *file)
-{
-	struct mach_header_64 *header;
-
-	if (file->size < sizeof(struct mach_header_64))
-	{
-		ft_putstr("Unexpected end of file.\n");
-		return ;
-	}
-	header = (void *)file->contents;
-	if (header->magic == MH_CIGAM_64)
-	{
-		ft_putstr("Reverse byte order not currently supported.\n");
-		return ;
-	}
-	if (header->magic != MH_MAGIC_64)
-	{
-		ft_putstr("Not an object file.\n");
-		return ;
-	}
-	do_cmds(file, sizeof(struct mach_header_64), header->ncmds);
 }
 
 int main(int argc, const char **argv)
 {
-	t_file *file;
+	t_machfile *machfile;
 	if (argc < 2)
-		file = ft_open("test_files/malloc.so");
+		machfile = load_machfile("test_files/malloc.so");
 	else
-		file = ft_open(argv[1]);
-	if (!file)
+		machfile = load_machfile(argv[1]);
+	if (!machfile)
 		return (-1);
-	do_things(file);
-	ft_close(file);
+	nm(machfile);
+	otool(machfile);
+	unload_machfile(machfile);
 }
