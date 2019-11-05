@@ -6,7 +6,7 @@
 /*   By: nwhitlow <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/11/04 14:47:14 by nwhitlow          #+#    #+#             */
-/*   Updated: 2019/11/04 16:23:07 by nwhitlow         ###   ########.fr       */
+/*   Updated: 2019/11/05 14:06:52 by nwhitlow         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@ typedef struct	s_machfile
 	char				*strtab;
 }				t_machfile;
 
-t_machfile		*load_machfile(const char *filename);
+t_machfile		*load_machfile(t_file *file);
 void			unload_machfile(t_machfile *machfile);
 
 #endif

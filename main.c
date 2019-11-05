@@ -6,7 +6,7 @@
 /*   By: nwhitlow <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/11/03 12:24:16 by nwhitlow          #+#    #+#             */
-/*   Updated: 2019/11/04 16:36:37 by nwhitlow         ###   ########.fr       */
+/*   Updated: 2019/11/05 14:51:06 by nwhitlow         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -124,11 +124,25 @@ static void	nm(t_machfile *machfile)
 
 int main(int argc, const char **argv)
 {
+	t_file *file;
 	t_machfile *machfile;
+
 	if (argc < 2)
-		machfile = load_machfile("test_files/malloc.so");
+		file = ft_open("test_files/ft_putstr.o");
 	else
-		machfile = load_machfile(argv[1]);
+		file = ft_open(argv[1]);
+	if (!file)
+	{
+		ft_printf("Failed to open %s\n", argv[1]);
+		return (-1);
+	}
+	if (file->size >= 8 && ft_strncmp(file->contents, "!<arch>\n", 8) == 0)
+	{
+		ft_putstr("Archive files not currently supported.\n");
+		ft_close(file);
+		return (-1);
+	}
+	machfile = load_machfile(file);
 	if (!machfile)
 		return (-1);
 	nm(machfile);
