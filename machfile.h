@@ -6,7 +6,7 @@
 /*   By: nwhitlow <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/11/04 14:47:14 by nwhitlow          #+#    #+#             */
-/*   Updated: 2019/11/05 14:06:52 by nwhitlow         ###   ########.fr       */
+/*   Updated: 2019/11/06 15:43:48 by nwhitlow         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,5 +30,12 @@ typedef struct	s_machfile
 
 t_machfile		*load_machfile(t_file *file);
 void			unload_machfile(t_machfile *machfile);
+
+/*
+** This is MY function! Do not use this! The only reason it's non-static and
+** floating around in a header file is because machfile.c was 7 functions long.
+*/
+
+int				do_things(t_machfile *machfile);
 
 #endif

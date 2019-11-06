@@ -6,30 +6,24 @@
 /*   By: nwhitlow <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/11/03 12:24:16 by nwhitlow          #+#    #+#             */
-/*   Updated: 2019/11/06 12:41:34 by nwhitlow         ###   ########.fr       */
+/*   Updated: 2019/11/06 15:02:08 by nwhitlow         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-// TODO REMOVE
-#include <inttypes.h>
-
 #include "machfile.h"
+#include "misc.h"
 
 #include "libft/libft.h"
 
-// OTOOL -T
-
-void	print_hex_uint32_t(uint64_t n);
-
 static void	hexdump(void *data, uint32_t size, uint64_t addr)
 {
-	unsigned char *d;
-	int i;
+	unsigned char	*d;
+	uint32_t		i;
 
 	d = data;
 	while (1)
 	{
-		print_hex_uint32_t(addr);
+		PRINT_HEX_UINT32_T(addr);
 		ft_printf("\t");
 		i = 0;
 		while (i < size && i < 16)
@@ -46,17 +40,28 @@ static void	hexdump(void *data, uint32_t size, uint64_t addr)
 	}
 }
 
-void	display(t_machfile *machfile)
+/*
+** There's also an align member in the section_64 struct, which does some
+** curious things that I'm not sure if we need to handle, or if that's just for
+** the creators of the mach-o file to deal with.
+*/
+
+void		display(t_machfile *machfile)
 {
+	uint32_t			i;
+	struct section_64	*s;
+
 	ft_printf("%s:\n", machfile->file->filename);
-	for (uint32_t i = 0; i < machfile->nsects; i++)
+	i = 0;
+	while (i < machfile->nsects)
 	{
-		struct section_64 *s = machfile->sects[i];
-//		ft_printf("align = %" PRId32 "\n", s->align);
-		if ((ft_strcmp(s->sectname, "__text") == 0) && (ft_strcmp(s->segname, "__TEXT") == 0))
+		s = machfile->sects[i];
+		if ((ft_strcmp(s->sectname, "__text") == 0) &&
+				(ft_strcmp(s->segname, "__TEXT") == 0))
 		{
 			ft_printf("Contents of (__TEXT,__text) section\n");
 			hexdump(machfile->file->contents + s->offset, s->size, s->addr);
 		}
+		i++;
 	}
 }

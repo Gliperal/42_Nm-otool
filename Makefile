@@ -1,7 +1,7 @@
 CC=gcc
-CFLAGS=
+CFLAGS=-Wall -Wextra -Werror
 RM=rm -rf
-OBJS=file.o machfile.o main.o
+OBJS=file.o machfile.o machfile2.o main.o
 NAME=ft_nm ft_otool
 LIBFT=libft
 
@@ -16,10 +16,15 @@ clean:
 	$(RM) nm.o
 	$(RM) otool.o
 	$(RM) $(OBJS)
+	make -C $(LIBFT) clean
 
 fclean: clean
 	$(RM) $(NAME)
+	make -C $(LIBFT) fclean
 
 re: fclean all
 
 .PHONY: all clean fclean re
+
+$(LIBFT)/libft.a:
+	make -C $(LIBFT)
