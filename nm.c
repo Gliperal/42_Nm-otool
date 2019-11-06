@@ -1,16 +1,14 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main.c                                             :+:      :+:    :+:   */
+/*   nm.c                                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: nwhitlow <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/11/03 12:24:16 by nwhitlow          #+#    #+#             */
-/*   Updated: 2019/11/05 16:18:34 by nwhitlow         ###   ########.fr       */
+/*   Updated: 2019/11/05 15:51:49 by nwhitlow         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
-// TODO Add -WWW to makefile
 
 // TODO REMOVE
 #include <inttypes.h>
@@ -19,55 +17,7 @@
 
 #include "libft/libft.h"
 
-void	display(t_machfile *machfile);
-
-// OTOOL -T
-
-void	print_hex_uint32_t(uint64_t n)
-{
-	ft_printf("%.8x%.8x", n >> 32, n);
-}
-
-void	hexdump(void *data, uint32_t size, uint64_t addr)
-{
-	unsigned char *d;
-	int i;
-
-	d = data;
-	while (1)
-	{
-		print_hex_uint32_t(addr);
-		ft_printf("\t");
-		i = 0;
-		while (i < size && i < 16)
-		{
-			ft_printf("%.2x ", d[i]);
-			i++;
-		}
-		ft_printf("\n");
-		d += 16;
-		if (size <= 16)
-			break ;
-		size -= 16;
-		addr += 16;
-	}
-}
-
-static void	otool(t_machfile *machfile)
-{
-	for (uint32_t i = 0; i < machfile->nsects; i++)
-	{
-		struct section_64 *s = machfile->sects[i];
-//		ft_printf("align = %" PRId32 "\n", s->align);
-		if ((ft_strcmp(s->sectname, "__text") == 0) && (ft_strcmp(s->segname, "__TEXT") == 0))
-		{
-			ft_printf("Contents of (__TEXT,__text) section\n");
-			hexdump(machfile->file->contents + s->offset, s->size, s->addr);
-		}
-	}
-}
-
-// NM
+void	print_hex_uint32_t(uint64_t n);
 
 static char	sym_type(struct nlist_64 *sym, t_machfile *machfile)
 {
@@ -110,7 +60,7 @@ static char	sym_type(struct nlist_64 *sym, t_machfile *machfile)
 	return (type);
 }
 
-static void	nm(t_machfile *machfile)
+void	display(t_machfile *machfile)
 {
 	for (uint32_t i = 0; i < machfile->nsyms; i++)
 	{
@@ -124,28 +74,4 @@ static void	nm(t_machfile *machfile)
 		// TODO check end of file
 		ft_printf("%s\n", machfile->strtab + sym->n_un.n_strx);
 	}
-}
-
-int main(int argc, const char **argv)
-{
-	t_file *file;
-	t_machfile *machfile;
-
-	if (argc < 2)
-		file = ft_open("a.out");
-	else
-		file = ft_open(argv[1]);
-	if (!file)
-		return (-1);
-	if (file->size >= 8 && ft_strncmp(file->contents, "!<arch>\n", 8) == 0)
-	{
-		ft_putstr("Archive files not currently supported.\n");
-		ft_close(file);
-		return (-1);
-	}
-	machfile = load_machfile(file);
-	if (!machfile)
-		return (-1);
-	display(machfile);
-	unload_machfile(machfile);
 }
