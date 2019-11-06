@@ -6,7 +6,7 @@
 /*   By: nwhitlow <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/11/03 12:24:16 by nwhitlow          #+#    #+#             */
-/*   Updated: 2019/11/06 15:40:07 by nwhitlow         ###   ########.fr       */
+/*   Updated: 2019/11/06 15:55:06 by nwhitlow         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,8 +37,8 @@ static void	sort(t_machfile *machfile)
 	{
 		sym1 = machfile->symtab + i;
 		sym2 = machfile->symtab + i + 1;
-		if (ft_strcmp(machfile->strtab + sym1->n_un.n_strx,
-					machfile->strtab + sym2->n_un.n_strx) < 0)
+		if (ft_strcmp(machfile->strtab + sym2->n_un.n_strx,
+					machfile->strtab + sym1->n_un.n_strx) < 0)
 		{
 			swap(sym1, sym2);
 			sorted = 0;
