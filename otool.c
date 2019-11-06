@@ -6,7 +6,7 @@
 /*   By: nwhitlow <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/11/03 12:24:16 by nwhitlow          #+#    #+#             */
-/*   Updated: 2019/11/05 15:52:31 by nwhitlow         ###   ########.fr       */
+/*   Updated: 2019/11/06 12:41:34 by nwhitlow         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,6 +48,7 @@ static void	hexdump(void *data, uint32_t size, uint64_t addr)
 
 void	display(t_machfile *machfile)
 {
+	ft_printf("%s:\n", machfile->file->filename);
 	for (uint32_t i = 0; i < machfile->nsects; i++)
 	{
 		struct section_64 *s = machfile->sects[i];

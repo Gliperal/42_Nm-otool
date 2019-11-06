@@ -6,7 +6,7 @@
 /*   By: nwhitlow <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/11/03 11:48:40 by nwhitlow          #+#    #+#             */
-/*   Updated: 2019/11/03 12:35:59 by nwhitlow         ###   ########.fr       */
+/*   Updated: 2019/11/06 12:42:17 by nwhitlow         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,5 +87,6 @@ t_file			*ft_open(const char *filename)
 		file = NULL;
 	}
 	close(fd);
+	file->filename = filename;
 	return (file);
 }

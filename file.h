@@ -6,7 +6,7 @@
 /*   By: nwhitlow <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/11/03 12:27:27 by nwhitlow          #+#    #+#             */
-/*   Updated: 2019/11/03 12:36:26 by nwhitlow         ###   ########.fr       */
+/*   Updated: 2019/11/06 12:41:52 by nwhitlow         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,9 +17,10 @@
 
 typedef struct	s_file
 {
-	char	*contents;
-	size_t	alloc_size;
-	size_t	size;
+	const char	*filename;
+	char		*contents;
+	size_t		alloc_size;
+	size_t		size;
 }				t_file;
 
 t_file			*ft_open(const char *filename);
