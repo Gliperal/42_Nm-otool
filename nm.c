@@ -6,7 +6,7 @@
 /*   By: nwhitlow <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/11/03 12:24:16 by nwhitlow          #+#    #+#             */
-/*   Updated: 2019/11/06 15:55:06 by nwhitlow         ###   ########.fr       */
+/*   Updated: 2019/11/06 15:57:53 by nwhitlow         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,7 +79,7 @@ static char	sym_type(struct nlist_64 *sym, t_machfile *machfile)
 
 	ntype = sym->n_type;
 	if (ntype & N_STAB)
-		return ('-');
+		return (0);
 	else if ((ntype & N_TYPE) == N_UNDF)
 		type = 'u';
 	else if ((ntype & N_TYPE) == N_ABS)
