@@ -6,7 +6,7 @@
 /*   By: nwhitlow <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/11/03 12:24:16 by nwhitlow          #+#    #+#             */
-/*   Updated: 2019/11/06 15:47:03 by nwhitlow         ###   ########.fr       */
+/*   Updated: 2019/11/07 14:22:33 by nwhitlow         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -130,9 +130,14 @@ int			do_things(t_machfile *machfile)
 		return (-1);
 	}
 	header = (void *)machfile->file->contents;
-	if (header->magic == MH_CIGAM_64)
+	if (header->magic == MH_CIGAM_64 || header->magic == MH_CIGAM)
 	{
 		ft_putstr("Reverse byte order not currently supported.\n");
+		return (-1);
+	}
+	if (header->magic == MH_MAGIC)
+	{
+		ft_putstr("32-bit not currently supported.\n");
 		return (-1);
 	}
 	if (header->magic != MH_MAGIC_64)

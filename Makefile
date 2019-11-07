@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-Wall -Wextra -Werror
+CFLAGS=
 RM=rm -rf
 OBJS=file.o machfile.o machfile2.o main.o
 NAME=ft_nm ft_otool
