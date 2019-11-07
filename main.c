@@ -6,7 +6,7 @@
 /*   By: nwhitlow <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/11/03 12:24:16 by nwhitlow          #+#    #+#             */
-/*   Updated: 2019/11/07 14:22:43 by nwhitlow         ###   ########.fr       */
+/*   Updated: 2019/11/07 15:03:33 by nwhitlow         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 
 #include "machfile.h"
 #include "misc.h"
+#include "magic.h"
 
 #include <mach-o/loader.h>
 #include <mach-o/fat.h>
@@ -39,7 +40,7 @@ int	trim_fat(t_file *file)
 		uint32_t offset = swap_endian_32(arch->offset);
 		uint32_t size = swap_endian_32(arch->size);
 		uint32_t magic = *(uint32_t *)(file->contents + swap_endian_32(arch->offset));
-		if (magic == MH_MAGIC || magic == MH_CIGAM || magic == MH_MAGIC_64 || magic == MH_CIGAM_64)
+		if (is_macho(magic))
 		{
 			ft_memmove(file->contents, file->contents + offset, size);
 			file->size = size;
@@ -72,7 +73,7 @@ int	main(int argc, const char **argv)
 		ft_putstr("Unexpected end of file.\n");
 		return (1);
 	}
-	if (*(unsigned int *)file->contents == FAT_CIGAM)
+	if (is_fat(*(uint32_t *)file->contents))
 		if (!trim_fat(file))
 			return (1);
 	machfile = load_machfile(file);

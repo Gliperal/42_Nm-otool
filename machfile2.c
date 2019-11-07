@@ -6,13 +6,14 @@
 /*   By: nwhitlow <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/11/03 12:24:16 by nwhitlow          #+#    #+#             */
-/*   Updated: 2019/11/07 14:22:33 by nwhitlow         ###   ########.fr       */
+/*   Updated: 2019/11/07 15:07:55 by nwhitlow         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <stdlib.h>
 
 #include "machfile.h"
+#include "magic.h"
 
 #include "libft/libft.h"
 
@@ -130,19 +131,20 @@ int			do_things(t_machfile *machfile)
 		return (-1);
 	}
 	header = (void *)machfile->file->contents;
-	if (header->magic == MH_CIGAM_64 || header->magic == MH_CIGAM)
+	if (!is_macho(header->magic))
+	{
+		ft_putstr("Not an object file.\n");
+		return (-1);
+	}
+	machfile->reverse_byte_order = is_big_endian(header->magic);
+	if (machfile->reverse_byte_order)
 	{
 		ft_putstr("Reverse byte order not currently supported.\n");
 		return (-1);
 	}
-	if (header->magic == MH_MAGIC)
+	if (is_32_bit(header->magic))
 	{
 		ft_putstr("32-bit not currently supported.\n");
-		return (-1);
-	}
-	if (header->magic != MH_MAGIC_64)
-	{
-		ft_putstr("Not an object file.\n");
 		return (-1);
 	}
 	return (do_cmds(machfile, sizeof(struct mach_header_64), header->ncmds));

@@ -6,7 +6,7 @@
 /*   By: nwhitlow <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/11/04 14:47:14 by nwhitlow          #+#    #+#             */
-/*   Updated: 2019/11/06 15:43:48 by nwhitlow         ###   ########.fr       */
+/*   Updated: 2019/11/07 14:33:42 by nwhitlow         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@
 typedef struct	s_machfile
 {
 	t_file				*file;
+	int					reverse_byte_order;
 	struct section_64	**sects;
 	unsigned int		nsects;
 	struct nlist_64		*symtab;

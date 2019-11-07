@@ -1,7 +1,7 @@
 CC=gcc
 CFLAGS=
 RM=rm -rf
-OBJS=file.o machfile.o machfile2.o main.o
+OBJS=file.o machfile.o machfile2.o main.o magic.o
 NAME=ft_nm ft_otool
 LIBFT=libft
 
