@@ -6,7 +6,7 @@
 /*   By: nwhitlow <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/11/03 12:24:16 by nwhitlow          #+#    #+#             */
-/*   Updated: 2019/11/06 15:57:53 by nwhitlow         ###   ########.fr       */
+/*   Updated: 2019/11/07 17:51:30 by nwhitlow         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,12 +101,14 @@ static char	sym_type(struct nlist_64 *sym, t_machfile *machfile)
 ** there's no way correctors will notice that, so I think I'm good.
 */
 
-void		display(t_machfile *machfile)
+void		display(t_machfile *machfile, int multiple_files)
 {
 	char			type;
 	struct nlist_64	*sym;
 	uint32_t		i;
 
+	if (multiple_files)
+		ft_printf("\n%s:\n", machfile->file->filename);
 	sort(machfile);
 	i = 0;
 	while (i < machfile->nsyms)

@@ -6,7 +6,7 @@
 /*   By: nwhitlow <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/11/03 12:24:16 by nwhitlow          #+#    #+#             */
-/*   Updated: 2019/11/06 15:02:08 by nwhitlow         ###   ########.fr       */
+/*   Updated: 2019/11/07 17:49:54 by nwhitlow         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,11 +46,12 @@ static void	hexdump(void *data, uint32_t size, uint64_t addr)
 ** the creators of the mach-o file to deal with.
 */
 
-void		display(t_machfile *machfile)
+void		display(t_machfile *machfile, int multiple_files)
 {
 	uint32_t			i;
 	struct section_64	*s;
 
+	UNUSED(multiple_files);
 	ft_printf("%s:\n", machfile->file->filename);
 	i = 0;
 	while (i < machfile->nsects)

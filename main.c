@@ -6,7 +6,7 @@
 /*   By: nwhitlow <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/11/03 12:24:16 by nwhitlow          #+#    #+#             */
-/*   Updated: 2019/11/07 15:03:33 by nwhitlow         ###   ########.fr       */
+/*   Updated: 2019/11/07 17:51:12 by nwhitlow         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,15 +51,12 @@ int	trim_fat(t_file *file)
 	return (0);
 }
 
-int	main(int argc, const char **argv)
+int	per_file(const char *filename, int multiple_files)
 {
 	t_file		*file;
 	t_machfile	*machfile;
 
-	if (argc < 2)
-		file = ft_open("a.out");
-	else
-		file = ft_open(argv[1]);
+	file = ft_open(filename);
 	if (!file)
 		return (1);
 	if (file->size >= 8 && ft_strncmp(file->contents, "!<arch>\n", 8) == 0)
@@ -79,6 +76,27 @@ int	main(int argc, const char **argv)
 	machfile = load_machfile(file);
 	if (!machfile)
 		return (1);
-	display(machfile);
+	display(machfile, multiple_files);
 	unload_machfile(machfile);
+	return (0);
+}
+
+int	main(int argc, const char **argv)
+{
+	int status;
+	int i;
+
+	status = 0;
+	if (argc < 2)
+		status |= per_file("a.out", 0);
+	else
+	{
+		i = 1;
+		while (i < argc)
+		{
+			status |= per_file(argv[i], argc > 2);
+			i++;
+		}
+	}
+	return (status);
 }
