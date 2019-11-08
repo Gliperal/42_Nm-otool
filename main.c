@@ -6,7 +6,7 @@
 /*   By: nwhitlow <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/11/03 12:24:16 by nwhitlow          #+#    #+#             */
-/*   Updated: 2019/11/07 21:18:58 by nwhitlow         ###   ########.fr       */
+/*   Updated: 2019/11/08 14:36:05 by nwhitlow         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,7 @@ static int	trim_fat_helper(t_file *file, struct fat_arch *arches,
 			return (0);
 		}
 		magic = *(uint32_t *)(file->contents + offset);
-		if (is_macho(magic))
+		if (is_macho(magic) && !is_32_bit(magic))
 		{
 			ft_memmove(file->contents, file->contents + offset, size);
 			file->size = size;
@@ -69,6 +69,7 @@ static int	trim_fat(t_file *file)
 		return (0);
 	}
 	header = (void *)file->contents;
+	// TODO fat files won't always be reverse
 	nfat_arch = swap_endian_32(header->nfat_arch);
 	if (file->size < sizeof(struct fat_header) +
 											nfat_arch * sizeof(struct fat_arch))

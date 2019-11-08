@@ -6,7 +6,7 @@
 /*   By: nwhitlow <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/11/04 14:47:14 by nwhitlow          #+#    #+#             */
-/*   Updated: 2019/11/07 14:33:42 by nwhitlow         ###   ########.fr       */
+/*   Updated: 2019/11/08 13:54:23 by nwhitlow         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,9 +22,11 @@ typedef struct	s_machfile
 {
 	t_file				*file;
 	int					reverse_byte_order;
-	struct section_64	**sects;
+	struct section		**sects_32;
+	struct section_64	**sects_64;
 	unsigned int		nsects;
-	struct nlist_64		*symtab;
+	struct nlist		*symtab_32;
+	struct nlist_64		*symtab_64;
 	uint32_t			nsyms;
 	char				*strtab;
 }				t_machfile;
@@ -37,6 +39,7 @@ void			unload_machfile(t_machfile *machfile);
 ** floating around in a header file is because machfile.c was 7 functions long.
 */
 
-int				do_things(t_machfile *machfile);
+int				do_things_32(t_machfile *machfile);
+int				do_things_64(t_machfile *machfile);
 
 #endif

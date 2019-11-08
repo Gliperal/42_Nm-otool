@@ -6,7 +6,7 @@
 /*   By: nwhitlow <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/11/03 12:24:16 by nwhitlow          #+#    #+#             */
-/*   Updated: 2019/11/07 17:51:30 by nwhitlow         ###   ########.fr       */
+/*   Updated: 2019/11/07 21:34:42 by nwhitlow         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,8 +35,8 @@ static void	sort(t_machfile *machfile)
 	i = 0;
 	while (i < machfile->nsyms - 1)
 	{
-		sym1 = machfile->symtab + i;
-		sym2 = machfile->symtab + i + 1;
+		sym1 = machfile->symtab_64 + i;
+		sym2 = machfile->symtab_64 + i + 1;
 		if (ft_strcmp(machfile->strtab + sym2->n_un.n_strx,
 					machfile->strtab + sym1->n_un.n_strx) < 0)
 		{
@@ -61,7 +61,7 @@ static char	section_type(uint8_t sectindex, t_machfile *machfile)
 
 	if (sectindex > machfile->nsects)
 		return (0);
-	sectname = machfile->sects[sectindex - 1]->sectname;
+	sectname = machfile->sects_64[sectindex - 1]->sectname;
 	if (ft_strcmp(sectname, "__text") == 0)
 		return ('t');
 	else if (ft_strcmp(sectname, "__data") == 0)
@@ -113,7 +113,7 @@ void		display(t_machfile *machfile, int multiple_files)
 	i = 0;
 	while (i < machfile->nsyms)
 	{
-		sym = machfile->symtab + i;
+		sym = machfile->symtab_64 + i;
 		type = sym_type(sym, machfile);
 		if (type != 0)
 		{
