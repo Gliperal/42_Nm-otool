@@ -6,7 +6,7 @@
 /*   By: nwhitlow <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/11/03 12:24:16 by nwhitlow          #+#    #+#             */
-/*   Updated: 2019/11/08 14:09:12 by nwhitlow         ###   ########.fr       */
+/*   Updated: 2019/11/08 14:59:34 by nwhitlow         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ static int	do_sections_32(t_machfile *machfile, size_t offset, uint32_t nsects)
 {
 	struct section	**new_sects;
 	struct section	*sections;
-	uint32_t			i;
+	uint32_t		i;
 
 	if (machfile->file->size < offset + nsects * sizeof(struct section))
 	{
@@ -123,7 +123,8 @@ static int	do_cmds(t_machfile *machfile, size_t offset, uint32_t ncmds)
 
 int			do_things_32(t_machfile *machfile)
 {
-	struct mach_header *header;
+	struct mach_header	*header;
+	int					status;
 
 	if (machfile->file->size < sizeof(struct mach_header))
 	{
@@ -131,21 +132,13 @@ int			do_things_32(t_machfile *machfile)
 		return (-1);
 	}
 	header = (void *)machfile->file->contents;
-	if (!is_macho(header->magic))
+	status = do_cmds(machfile, sizeof(struct mach_header), header->ncmds);
+	if (status == -1)
+		return (-1);
+	if (machfile->sects_32 == NULL || machfile->symtab_32 == NULL)
 	{
-		ft_putstr("Not an object file.\n");
+		ft_putstr("Missing elements in file.\n");
 		return (-1);
 	}
-	machfile->reverse_byte_order = is_big_endian(header->magic);
-	if (machfile->reverse_byte_order)
-	{
-		ft_putstr("Reverse byte order not currently supported.\n");
-		return (-1);
-	}
-	if (!is_32_bit(header->magic))
-	{
-		ft_putstr("BAD\n");
-		return (-1);
-	}
-	return (do_cmds(machfile, sizeof(struct mach_header), header->ncmds));
+	return (0);
 }

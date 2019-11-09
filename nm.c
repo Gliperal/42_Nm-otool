@@ -6,47 +6,15 @@
 /*   By: nwhitlow <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/11/03 12:24:16 by nwhitlow          #+#    #+#             */
-/*   Updated: 2019/11/07 21:34:42 by nwhitlow         ###   ########.fr       */
+/*   Updated: 2019/11/08 16:33:04 by nwhitlow         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "machfile.h"
 #include "misc.h"
+#include "sort.h"
 
 #include "libft/libft.h"
-
-static void	swap(struct nlist_64 *a, struct nlist_64 *b)
-{
-	struct nlist_64 tmp;
-
-	tmp = *a;
-	*a = *b;
-	*b = tmp;
-}
-
-static void	sort(t_machfile *machfile)
-{
-	int				sorted;
-	uint32_t		i;
-	struct nlist_64	*sym1;
-	struct nlist_64	*sym2;
-
-	sorted = 1;
-	i = 0;
-	while (i < machfile->nsyms - 1)
-	{
-		sym1 = machfile->symtab_64 + i;
-		sym2 = machfile->symtab_64 + i + 1;
-		if (ft_strcmp(machfile->strtab + sym2->n_un.n_strx,
-					machfile->strtab + sym1->n_un.n_strx) < 0)
-		{
-			swap(sym1, sym2);
-			sorted = 0;
-			i = -1;
-		}
-		i++;
-	}
-}
 
 /*
 ** This function used to check for sectnames of __common too, which supposedly
@@ -61,7 +29,10 @@ static char	section_type(uint8_t sectindex, t_machfile *machfile)
 
 	if (sectindex > machfile->nsects)
 		return (0);
-	sectname = machfile->sects_64[sectindex - 1]->sectname;
+	if (machfile->is_32_bit)
+		sectname = machfile->sects_32[sectindex - 1]->sectname;
+	else
+		sectname = machfile->sects_64[sectindex - 1]->sectname;
 	if (ft_strcmp(sectname, "__text") == 0)
 		return ('t');
 	else if (ft_strcmp(sectname, "__data") == 0)
@@ -72,7 +43,13 @@ static char	section_type(uint8_t sectindex, t_machfile *machfile)
 		return ('s');
 }
 
-static char	sym_type(struct nlist_64 *sym, t_machfile *machfile)
+/*
+** We don't need 64-bit and 32-bit variations for the sym type function. nlist
+** and nlist_64 are identical except for n_value, which is the last value in the
+** struct, so we can freely cast between them.
+*/
+
+static char	sym_type(struct nlist *sym, t_machfile *machfile)
 {
 	uint8_t	ntype;
 	char	type;
@@ -101,29 +78,61 @@ static char	sym_type(struct nlist_64 *sym, t_machfile *machfile)
 ** there's no way correctors will notice that, so I think I'm good.
 */
 
-void		display(t_machfile *machfile, int multiple_files)
+void		nm_32(t_machfile *machfile)
 {
 	char			type;
-	struct nlist_64	*sym;
+	struct nlist	*sym;
 	uint32_t		i;
 
-	if (multiple_files)
-		ft_printf("\n%s:\n", machfile->file->filename);
-	sort(machfile);
 	i = 0;
 	while (i < machfile->nsyms)
 	{
-		sym = machfile->symtab_64 + i;
+		sym = machfile->symtab_32 + i;
 		type = sym_type(sym, machfile);
 		if (type != 0)
 		{
 			if ((sym->n_type & N_TYPE) == N_SECT)
 				PRINT_HEX_UINT32_T(sym->n_value);
 			else
-				ft_printf("                ");
-			ft_printf(" %c ", sym_type(sym, machfile));
+				ft_printf("        ");
+			ft_printf(" %c ", type);
 			ft_printf("%s\n", machfile->strtab + sym->n_un.n_strx);
 		}
 		i++;
 	}
+}
+
+void		nm_64(t_machfile *machfile)
+{
+	char			type;
+	struct nlist_64	*sym;
+	uint32_t		i;
+
+	i = 0;
+	while (i < machfile->nsyms)
+	{
+		sym = machfile->symtab_64 + i;
+		type = sym_type((struct nlist *)sym, machfile);
+		if (type != 0)
+		{
+			if ((sym->n_type & N_TYPE) == N_SECT)
+				PRINT_HEX_UINT64_T(sym->n_value);
+			else
+				ft_printf("                ");
+			ft_printf(" %c ", type);
+			ft_printf("%s\n", machfile->strtab + sym->n_un.n_strx);
+		}
+		i++;
+	}
+}
+
+void		display(t_machfile *machfile, int multiple_files)
+{
+	if (multiple_files)
+		ft_printf("\n%s:\n", machfile->file->filename);
+	sort(machfile);
+	if (machfile->is_32_bit)
+		nm_32(machfile);
+	else
+		nm_64(machfile);
 }

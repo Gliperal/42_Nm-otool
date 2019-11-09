@@ -6,7 +6,7 @@
 /*   By: nwhitlow <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/11/03 12:24:16 by nwhitlow          #+#    #+#             */
-/*   Updated: 2019/11/08 13:53:42 by nwhitlow         ###   ########.fr       */
+/*   Updated: 2019/11/08 14:59:41 by nwhitlow         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -123,7 +123,8 @@ static int	do_cmds(t_machfile *machfile, size_t offset, uint32_t ncmds)
 
 int			do_things_64(t_machfile *machfile)
 {
-	struct mach_header_64 *header;
+	struct mach_header_64	*header;
+	int						status;
 
 	if (machfile->file->size < sizeof(struct mach_header_64))
 	{
@@ -131,21 +132,13 @@ int			do_things_64(t_machfile *machfile)
 		return (-1);
 	}
 	header = (void *)machfile->file->contents;
-	if (!is_macho(header->magic))
+	status = do_cmds(machfile, sizeof(struct mach_header_64), header->ncmds);
+	if (status == -1)
+		return (-1);
+	if (machfile->sects_64 == NULL || machfile->symtab_64 == NULL)
 	{
-		ft_putstr("Not an object file.\n");
+		ft_putstr("Missing elements in file.\n");
 		return (-1);
 	}
-	machfile->reverse_byte_order = is_big_endian(header->magic);
-	if (machfile->reverse_byte_order)
-	{
-		ft_putstr("Reverse byte order not currently supported.\n");
-		return (-1);
-	}
-	if (is_32_bit(header->magic))
-	{
-		ft_putstr("BAD\n");
-		return (-1);
-	}
-	return (do_cmds(machfile, sizeof(struct mach_header_64), header->ncmds));
+	return (0);
 }

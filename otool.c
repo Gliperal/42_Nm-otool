@@ -6,12 +6,9 @@
 /*   By: nwhitlow <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/11/03 12:24:16 by nwhitlow          #+#    #+#             */
-/*   Updated: 2019/11/08 14:40:28 by nwhitlow         ###   ########.fr       */
+/*   Updated: 2019/11/08 16:40:59 by nwhitlow         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
-// TODO REMOVE
-#include <inttypes.h>
 
 #include "machfile.h"
 #include "misc.h"
@@ -116,9 +113,8 @@ void		display(t_machfile *machfile, int multiple_files)
 {
 	UNUSED(multiple_files);
 	ft_printf("%s:\n", machfile->file->filename);
-	// TODO add 32/64 bit flag in machfile struct
-	if (machfile->sects_32)
+	if (machfile->is_32_bit)
 		display_32(machfile);
-	if (machfile->sects_64)
+	else
 		display_64(machfile);
 }
