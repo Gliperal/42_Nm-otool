@@ -6,7 +6,7 @@
 /*   By: nwhitlow <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/11/03 12:24:16 by nwhitlow          #+#    #+#             */
-/*   Updated: 2019/11/08 14:57:32 by nwhitlow         ###   ########.fr       */
+/*   Updated: 2019/11/11 15:25:33 by nwhitlow         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,7 +53,6 @@ static int	load_machfile2(t_machfile *machfile, uint32_t magic)
 t_machfile	*load_machfile(t_file *file)
 {
 	t_machfile	*machfile;
-	int			status;
 	uint32_t	magic;
 
 	machfile = malloc(sizeof(t_machfile));
