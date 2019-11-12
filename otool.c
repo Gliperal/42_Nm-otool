@@ -6,7 +6,7 @@
 /*   By: nwhitlow <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/11/03 12:24:16 by nwhitlow          #+#    #+#             */
-/*   Updated: 2019/11/08 16:40:59 by nwhitlow         ###   ########.fr       */
+/*   Updated: 2019/11/11 15:53:50 by nwhitlow         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ static void	hexdump_32(void *data, uint32_t size, uint32_t addr)
 	uint32_t		i;
 
 	d = data;
-	while (1)
+	while (size)
 	{
 		PRINT_HEX_UINT32_T(addr);
 		ft_printf("\t");
@@ -46,7 +46,7 @@ static void	hexdump_64(void *data, uint32_t size, uint64_t addr)
 	uint32_t		i;
 
 	d = data;
-	while (1)
+	while (size)
 	{
 		PRINT_HEX_UINT64_T(addr);
 		ft_printf("\t");

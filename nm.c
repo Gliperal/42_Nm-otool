@@ -6,7 +6,7 @@
 /*   By: nwhitlow <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/11/03 12:24:16 by nwhitlow          #+#    #+#             */
-/*   Updated: 2019/11/08 16:33:04 by nwhitlow         ###   ########.fr       */
+/*   Updated: 2019/11/11 16:42:27 by nwhitlow         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,12 +91,17 @@ void		nm_32(t_machfile *machfile)
 		type = sym_type(sym, machfile);
 		if (type != 0)
 		{
-			if ((sym->n_type & N_TYPE) == N_SECT)
+			if ((sym->n_type & N_TYPE) == N_SECT ||
+												(sym->n_type & N_TYPE) == N_ABS)
 				PRINT_HEX_UINT32_T(sym->n_value);
 			else
 				ft_printf("        ");
 			ft_printf(" %c ", type);
-			ft_printf("%s\n", machfile->strtab + sym->n_un.n_strx);
+			ft_printf("%s", machfile->strtab + sym->n_un.n_strx);
+			if ((sym->n_type & N_TYPE) == N_INDR)
+				ft_printf(" (indirect for %s)",
+											machfile->strtab + sym->n_value);
+			ft_putchar('\n');
 		}
 		i++;
 	}
@@ -115,12 +120,17 @@ void		nm_64(t_machfile *machfile)
 		type = sym_type((struct nlist *)sym, machfile);
 		if (type != 0)
 		{
-			if ((sym->n_type & N_TYPE) == N_SECT)
+			if ((sym->n_type & N_TYPE) == N_SECT ||
+												(sym->n_type & N_TYPE) == N_ABS)
 				PRINT_HEX_UINT64_T(sym->n_value);
 			else
 				ft_printf("                ");
 			ft_printf(" %c ", type);
-			ft_printf("%s\n", machfile->strtab + sym->n_un.n_strx);
+			ft_printf("%s", machfile->strtab + sym->n_un.n_strx);
+			if ((sym->n_type & N_TYPE) == N_INDR)
+				ft_printf(" (indirect for %s)",
+											machfile->strtab + sym->n_value);
+			ft_putchar('\n');
 		}
 		i++;
 	}
