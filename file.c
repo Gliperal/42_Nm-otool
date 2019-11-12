@@ -6,7 +6,7 @@
 /*   By: nwhitlow <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/11/03 11:48:40 by nwhitlow          #+#    #+#             */
-/*   Updated: 2019/11/06 12:42:17 by nwhitlow         ###   ########.fr       */
+/*   Updated: 2019/11/11 17:28:37 by nwhitlow         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,7 @@ static t_file	*file_new(void)
 static int		file_read(t_file *file, int fd)
 {
 	char	buffer[1024];
-	size_t	bytes_read;
+	int		bytes_read;
 	char	*new_contents;
 
 	while ((bytes_read = read(fd, buffer, 1024)) > 0)
@@ -79,6 +79,7 @@ t_file			*ft_open(const char *filename)
 		return (NULL);
 	}
 	file = file_new();
+	file->filename = filename;
 	if (!file)
 		return (NULL);
 	if (file_read(file, fd) == -1)
@@ -87,6 +88,5 @@ t_file			*ft_open(const char *filename)
 		file = NULL;
 	}
 	close(fd);
-	file->filename = filename;
 	return (file);
 }
